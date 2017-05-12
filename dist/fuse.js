@@ -848,8 +848,11 @@ var Fuse = function () {
         }
       } else if (isArray(value)) {
         for (var _i3 = 0, len = value.length; _i3 < len; _i3 += 1) {
+          // If value length > 1 then the key is for searching an array
+          var thiskey = value.length > 1 ? key + '[' + _i3.toString() + ']' : key; // maintaining array, object convention
+
           this._analyze({
-            key: key,
+            key: thiskey,
             value: value[_i3],
             record: record,
             index: index
@@ -876,7 +879,9 @@ var Fuse = function () {
 
         for (var j = 0; j < scoreLen; j += 1) {
           var score = output[j].score;
-          var weight = weights ? weights[output[j].key].weight : 1;
+          var arrayregex = /(\[\d*\])$/g; // maintaining array, object convention
+          var key = !arrayregex.test(output[j].key) ? output[j].key : output[j].key.replace(arrayregex, '');
+          var weight = weights ? weights[key].weight : 1;
           var nScore = score * weight;
 
           if (weight !== 1) {
