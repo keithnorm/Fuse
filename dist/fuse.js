@@ -1,9 +1,9 @@
 /*!
- * Fuse.js v3.0.2 - Lightweight fuzzy-search (http://fusejs.io)
- * 
+ * Fuse.js v3.0.4 - Lightweight fuzzy-search (http://fusejs.io)
+ *
  * Copyright (c) 2012-2017 Kirollos Risk (http://kiro.me)
  * All Rights Reserved. Apache Software License 2.0
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
  */
 (function webpackUniversalModuleDefinition(root, factory) {
@@ -322,8 +322,8 @@ module.exports = function (text, pattern) {
   var matchedIndices = [];
 
   if (isMatch) {
-    for (i = 0, matchesLen = matches.length; i < matchesLen; i += 1) {
-      match = matches[i];
+    for (var i = 0, matchesLen = matches.length; i < matchesLen; i += 1) {
+      var match = matches[i];
       matchedIndices.push([text.indexOf(match), match.length - 1]);
     }
   }
@@ -409,10 +409,10 @@ module.exports = function (text, pattern, patternAlphabet, _ref) {
       expectedLocation: expectedLocation,
       distance: distance
     });
-    currentThreshold = Math.min(score, currentThreshold);
+    currentThreshold = Math.min(score, currentThreshold
 
     // What about in the other direction? (speed up)
-    bestLocation = text.lastIndexOf(pattern, expectedLocation + patternLen);
+    );bestLocation = text.lastIndexOf(pattern, expectedLocation + patternLen);
 
     if (bestLocation != -1) {
       var _score = bitapScore(pattern, {
@@ -491,11 +491,11 @@ module.exports = function (text, pattern, patternAlphabet, _ref) {
           currentLocation: currentLocation,
           expectedLocation: expectedLocation,
           distance: distance
-        });
+        }
 
         // This match will almost certainly be better than any existing match.
         // But check anyway.
-        if (finalScore <= currentThreshold) {
+        );if (finalScore <= currentThreshold) {
           // Indeed it is
           currentThreshold = finalScore;
           bestLocation = currentLocation;
@@ -511,7 +511,7 @@ module.exports = function (text, pattern, patternAlphabet, _ref) {
       }
     }
 
-    // No hope for a (better) match at greater error levels.  
+    // No hope for a (better) match at greater error levels.
     var _score2 = bitapScore(pattern, {
       errors: _i + 1,
       currentLocation: expectedLocation,
@@ -613,12 +613,12 @@ var Fuse = function () {
       matchAllTokens: matchAllTokens
     };
 
-    this.set(list);
+    this.setCollection(list);
   }
 
   _createClass(Fuse, [{
-    key: 'set',
-    value: function set(list) {
+    key: 'setCollection',
+    value: function setCollection(list) {
       this.list = list;
       return list;
     }
@@ -735,6 +735,8 @@ var Fuse = function () {
     key: '_analyze',
     value: function _analyze(_ref2, _ref3) {
       var key = _ref2.key,
+          _ref2$keyIndex = _ref2.keyIndex,
+          keyIndex = _ref2$keyIndex === undefined ? -1 : _ref2$keyIndex,
           value = _ref2.value,
           record = _ref2.record,
           index = _ref2.index;
@@ -769,10 +771,10 @@ var Fuse = function () {
           for (var i = 0; i < tokenSearchers.length; i += 1) {
             var tokenSearcher = tokenSearchers[i];
 
-            this._log('\nPattern: "' + tokenSearcher.pattern + '"');
+            this._log('\nPattern: "' + tokenSearcher.pattern + '"'
 
             // let tokenScores = []
-            var hasMatchInText = false;
+            );var hasMatchInText = false;
 
             for (var j = 0; j < words.length; j += 1) {
               var word = words[j];
@@ -789,8 +791,9 @@ var Fuse = function () {
                   scores.push(1);
                 }
               }
-              this._log('Token: "' + word + '", score: ' + obj[word]);
+              this._log('Token: "' + word + '", score: ' + obj[word]
               // tokenScores.push(obj)
+              );
             }
 
             if (hasMatchInText) {
@@ -817,18 +820,18 @@ var Fuse = function () {
 
         var checkTextMatches = this.options.tokenize && this.options.matchAllTokens ? numTextMatches >= tokenSearchers.length : true;
 
-        this._log('\nCheck Matches: ' + checkTextMatches);
+        this._log('\nCheck Matches: ' + checkTextMatches
 
         // If a match is found, add the item to <rawResults>, including its score
-        if ((exists || mainSearchResult.isMatch) && checkTextMatches) {
+        );if ((exists || mainSearchResult.isMatch) && checkTextMatches && mainSearchResult.matchedIndices.length > 0) {
           // Check if the item already exists in our results
           var existingResult = resultMap[index];
-
           if (existingResult) {
             // Use the lowest score
             // existingResult.score, bitapResult.score
             existingResult.output.push({
               key: key,
+              keyIndex: keyIndex,
               score: finalScore,
               matchedIndices: mainSearchResult.matchedIndices
             });
@@ -838,6 +841,7 @@ var Fuse = function () {
               item: record,
               output: [{
                 key: key,
+                keyIndex: keyIndex,
                 score: finalScore,
                 matchedIndices: mainSearchResult.matchedIndices
               }]
@@ -850,6 +854,7 @@ var Fuse = function () {
         for (var _i3 = 0, len = value.length; _i3 < len; _i3 += 1) {
           this._analyze({
             key: key,
+            keyIndex: _i3,
             value: value[_i3],
             record: record,
             index: index
@@ -919,6 +924,9 @@ var Fuse = function () {
             };
             if (item.key) {
               obj.key = item.key;
+            }
+            if (item.hasOwnProperty('keyIndex') && item.keyIndex > -1) {
+              obj.index = item.keyIndex;
             }
             data.matches.push(obj);
           }
